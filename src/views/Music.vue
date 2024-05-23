@@ -374,7 +374,13 @@
               :label="'禁歌'"
               class="searchradio"
             ></mu-radio>
-             
+            <mu-radio
+              :value="'ai'"
+              v-model="source"
+              color="primary"
+              :label="'ai'"
+              class="searchradio"
+            ></mu-radio>
             <a  @click="playCurrentPage">
                 <mu-avatar size="23" slot="avatar" style="margin-left:3px;">
                     <img src="../assets/images/play.png" title="播放当前页所有歌曲"/>
@@ -855,7 +861,7 @@
                   10.清空默认播放列表：“
                   <span style="color: #009688;">清空默认列表</span>” 。</p><br/>
                 <p> 11.设置默认播放列表（当点歌列表为空时，默认从此加载歌曲）：“
-                  <span style="color: #009688;">设置默认列表 24381616,1</span>” ，其中243881616和1是歌单id</p><br/>
+                  <span style="color: #009688;">设置默认列表 24381616,23828282</span>” ，其中243881616和23828282分别是歌单id</p><br/>
                 <p> 12.默认列表歌曲数：“
                   <span style="color: #009688;">默认列表歌曲数</span>” 。</p><br/>
                 <p>13.置顶音乐： “
@@ -2452,7 +2458,11 @@ export default {
     source:function(newValue,oldValue){
          this.current=1;
          let placeholders = ["请输入关键字搜索,如'遇见'","歌单id搜索:'*歌单id'","不知听啥，点右上歌单..."];
+         if(newValue == 'lz' || newValue == 'ai'){
+          this.placeHolderGq= "试下为空搜索(*^__^*)"
+         }else{
           this.placeHolderGq= placeholders[Math.floor(Math.random()*3)];
+         }
     
     },
     playingId:function(newValue,oldValue){
