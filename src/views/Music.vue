@@ -378,7 +378,7 @@
               :value="'ai'"
               v-model="source"
               color="primary"
-              :label="'ai'"
+              :label="'AI'"
               class="searchradio"
             ></mu-radio>
             <a  @click="playCurrentPage">

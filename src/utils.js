@@ -228,6 +228,13 @@ musicUtils.parseLyric = function (text) {
     for (let i = 0; i < lyrics.length; i++) {
         let lyric = decodeURIComponent(lyrics[i]);
         let timeReg = /\[\d*:\d*((\.|\:)\d*)*\]/g;
+        let aiMatch = text.match(timeReg);
+        console.log(aiMatch);
+        if(!aiMatch){
+            console.log(lyrics.length);
+            result[i+1000]= lyric;
+            continue;
+        }
         let timeRegExpArr = lyric.match(timeReg);
         if (!timeRegExpArr) continue;
         let clause = lyric.replace(timeReg, '');
@@ -245,5 +252,6 @@ musicUtils.parseLyric = function (text) {
             result.splice(i, 1);
         }
     }
+    console.log(result);
     return result;
 };
