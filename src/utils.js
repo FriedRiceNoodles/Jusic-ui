@@ -229,9 +229,7 @@ musicUtils.parseLyric = function (text) {
         let lyric = decodeURIComponent(lyrics[i]);
         let timeReg = /\[\d*:\d*((\.|\:)\d*)*\]/g;
         let aiMatch = text.match(timeReg);
-        console.log(aiMatch);
         if(!aiMatch){
-            console.log(lyrics.length);
             result[i+1000]= lyric;
             continue;
         }
