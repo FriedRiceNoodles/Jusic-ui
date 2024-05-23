@@ -188,7 +188,7 @@
                 <mu-text-field
                   :value="chatMessage"
                   @input="updateChatMessage"
-                  @keydown.enter="sendHandler"
+                  @keydown="messageFieldEnterHandler"
                   placeholder="Message..."
                   color="primary"
                   class="width-size-100 chat-message"
@@ -1248,6 +1248,12 @@ export default {
       }
       if (stompClient !== null) {
         this.$store.commit("setStompClient", stompClient);
+      }
+    },
+    messageFieldEnterHandler: function(e) {
+      // 按下回车时判断是否发送消息，如果按下的是回车键并且没有按下 shift 键且没有正在输入中文，则发送消息
+      if (e.keyCode === 13 && !e.shiftKey && !e.isComposing) {
+        this.sendHandler();
       }
     },
     sendHandler: function() {
