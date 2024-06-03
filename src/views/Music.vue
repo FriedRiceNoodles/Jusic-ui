@@ -415,6 +415,12 @@
                     <img src="../assets/images/play.png" />
                   </mu-avatar>
                 </a>
+                &nbsp;&nbsp;
+                <a v-if="showPickButton(scope.row.privilege)" @click="pickMusic(scope.row,'flac')">
+                  <mu-avatar size="20" slot="avatar">
+                    <img src="../assets/images/hifi.png" />
+                  </mu-avatar>
+                </a>
                 <mu-avatar size="20" slot="avatar" v-if="!showPickButton(scope.row.privilege)">
                   <mu-tooltip content="当前音乐不能点播">
                     <img src="../assets/images/noplay.png" />
@@ -921,8 +927,13 @@
        <mu-list-item-action @click="removeCollect(item.value)" style="width:10%;">
           <mu-icon value="favorite" color="red"></mu-icon>
         </mu-list-item-action>
-         <mu-list-item-action @click="pickMusicNoToast(item.value)"  style="width:10%;">
+         <mu-list-item-action @click="pickMusicNoToast(item.value,'320k')"  style="width:10%;">
           <mu-icon value="play_arrow" color="teal"></mu-icon>
+        </mu-list-item-action>
+         <mu-list-item-action @click="pickMusicNoToast(item.value,'flac')"  style="width:10%;">
+           <mu-avatar size="20" slot="avatar">
+                    <img src="../assets/images/hifi.png" />
+                  </mu-avatar>
         </mu-list-item-action>
         <mu-list-item-title  style="width:80%;">{{index+1}}.{{item.value.name}}|{{item.value.artist}}|{{item.value.album.name}}</mu-list-item-title>
          
@@ -1956,7 +1967,7 @@ export default {
       stompClient.send("/music/good/" + row.id, {}, {});
       this.$toast.message(`[${row.id}]${row.name} - 已发送点赞请求`);
     },
-    pickMusic: function(row) {
+    pickMusic: function(row,quality) {
       let stompClient = this.$store.getters.getStompClient;
       stompClient.send(
         "/music/pick",
@@ -1965,11 +1976,12 @@ export default {
           name: row.name,
           id: row.id,
           source: this.source,
+          quality:quality?quality:'320k',
           sendTime: Date.now()
         })
       );      this.$toast.message(`[${row.id}]${row.name} - 已发送点歌请求`);
     },
-     pickMusicNoToast: function(row) {
+     pickMusicNoToast: function(row,quality) {
       let stompClient = this.$store.getters.getStompClient;
       stompClient.send(
         "/music/pick",
@@ -1978,6 +1990,7 @@ export default {
           name: row.name,
           id: row.id,
           source: row.source,
+          quality:quality?quality:'320k',
           sendTime: Date.now()
         })
       );

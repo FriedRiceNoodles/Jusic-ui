@@ -234,13 +234,20 @@ export default {
             );
           } else if (chatContent.startsWith("点歌")) {
             console.log("点歌",data);
+            let quality = "320k";
+            chatContent = chatContent.trim();
+            if(chatContent.endsWith(" flac")|| chatContent.endsWith(" FLAC")){
+              quality = "flac";
+              chatContent = chatContent.slice(0,-5);
+            }
             stompClient.send(
               "/music/pick",
               {},
               JSON.stringify({
-                name: chatContent.slice(2).trim(),
+                name: chatContent.slice(2),
                 source: "wy",
                 sendTime: Date.now(),
+                quality:quality
               })
             );
           } else if(chatContent.startsWith("切歌")||chatContent.startsWith("投票切歌")){
