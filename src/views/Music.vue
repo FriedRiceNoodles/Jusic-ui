@@ -42,6 +42,11 @@
                     <mu-icon left value="wb_sunny"></mu-icon>
                       热歌榜
                     </mu-button>
+                    <mu-button flat color="teal" style="float:right;" @click="openBotttomPickHistorySheet">
+                    <mu-icon left value="history"></mu-icon>
+                      点歌历史
+                    </mu-button>
+                    
                   </div>
                   <div style="font-size: 16px; font-weight: 400; margin: 10px 0; min-height: 21px;">
                     专辑: &nbsp;{{
@@ -76,7 +81,7 @@
                <div style="margin-bottom:10px;height:250px" v-if="openLyrics">
                     <Lyrics :lyrics="lyrics" :currentTime="currentTime"/>
             </div>
-              <mu-data-table
+                <mu-data-table
                 style="background-color: transparent;max-height:380px;overflow:auto;"
                 :selectable="false"
                 :hover="false"
@@ -121,6 +126,9 @@
                   </td>
                 </template>
               </mu-data-table>
+              
+            </mu-tabs>
+            
             </mu-col>
           </mu-col>
           <mu-col span="12" sm="12" md="4" lg="4" xl="3">
@@ -905,7 +913,7 @@
            
         </mu-drawer>
 
-        <mu-bottom-sheet id="sheet" :open.sync="open" style="max-height:380px;overflow:auto;">
+        <mu-bottom-sheet class="sheet" :open.sync="open" style="max-height:380px;overflow:auto;">
     <mu-list>
       <mu-sub-header>
         <mu-button flat color="primary" @click="playAll">
@@ -937,6 +945,41 @@
         </mu-list-item-action>
         <mu-list-item-title  style="width:80%;">{{index+1}}.{{item.value.name}}|{{item.value.artist}}|{{item.value.album.name}}</mu-list-item-title>
          
+      </mu-list-item>
+    </mu-list>
+  </mu-bottom-sheet>
+  <mu-bottom-sheet class="sheet" :open.sync="openPickHistory" style="max-height:380px;overflow:auto;">
+    <mu-list>
+      <mu-sub-header>
+            <mu-button flat color="primary" @click="removeAllPickHistory">
+              清空历史
+            </mu-button>
+            <mu-button flat color="primary" @click="seeMyselfPickHistory">
+              只看自己
+            </mu-button>
+            <mu-button flat color="primary" @click="seeAllPickHistory">
+              看所有
+            </mu-button>
+            <mu-text-field v-model="pickSearch" placeholder="搜索歌名|歌手|点歌人" style="width:150px"></mu-text-field>
+
+      </mu-sub-header>
+  
+      <mu-list-item v-for="(item,index) in filteredPickHistoryList" :key="item.key">
+           <mu-list-item-action @click="removeCollect(item)" style="width:6%;" v-if="favoriteMap[item.id] != null && favoriteMap[item.id] != undefined">
+          <mu-icon value="favorite" color="red"></mu-icon>
+        </mu-list-item-action>
+       <mu-list-item-action @click="collectMusic(item)" style="width:6%;" v-else >
+          <mu-icon value="favorite" color="white"></mu-icon>
+        </mu-list-item-action>
+         <mu-list-item-action @click="pickMusicNoToast(item,'320k')"  style="width:7%;">
+          <mu-icon value="play_arrow" color="teal"></mu-icon>
+        </mu-list-item-action>
+         <mu-list-item-action @click="pickMusicNoToast(item,'flac')"  style="width:7%;">
+           <mu-avatar size="20" slot="avatar">
+                    <img src="../assets/images/hifi.png" />
+                  </mu-avatar>
+        </mu-list-item-action>
+        <mu-list-item-title  style="width:80%;">{{index+1}}.{{item.name}}|{{item.artist}}|{{item.album.name}}(<span style='color:teal'>{{item.nickName}}</span>{{formatDate(item.pickTime)}})</mu-list-item-title>
       </mu-list-item>
     </mu-list>
   </mu-bottom-sheet>
@@ -998,6 +1041,11 @@ export default {
     filteredHomeHouses() {
     return this.homeHouses.filter(house => {
       return house.name.toLowerCase().indexOf(this.houseSearch.toLowerCase()) !== -1 && (this.houseHide?house.population > 0:true);
+    });
+    },
+    filteredPickHistoryList() {
+    return this.pickHistoryList.filter(item => {
+      return this.pickSearch?((item.name.toLowerCase().indexOf(this.pickSearch.toLowerCase()) !== -1) ||(item.artist.toLowerCase().indexOf(this.pickSearch.toLowerCase()) !== -1) || item.nickName.indexOf(this.pickSearch) != -1):true;
     });
     },
     filteredHouses() {
@@ -1152,16 +1200,31 @@ export default {
       lastLyric:'',
       currentLyric:'',
       favoriteMap:{},
+      pickHistoryList:[],
       open:false,
+      openPickHistory:false,
       miniQrcode:'',
       currentTime:0,
       lyrics:{},
       openLyrics:false,
       houseSearch:'',
       houseHide:false,
-      innerHouseHide:false
+      innerHouseHide:false,
+      pickSearch:null
    } ),
   methods: {
+    formatDate(value) {
+      if (value) {
+        return new Date(value).toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
+      }
+    },
     play: function() {
       this.getScreenWidth();
       this.isPlay = !this.isPlay;
@@ -1722,6 +1785,18 @@ export default {
                 this.$store.commit("setMusic2", { url: this.secondUrl });
               }
             }
+            for(var i = 0; i < messageContent.data.length; i++){
+              let itemIndex = this.containsArray(this.pickHistoryList,messageContent.data[i]);
+              if(itemIndex != -1){
+                this.pickHistoryList.splice(itemIndex,1);
+              }else{
+                if(this.pickHistoryList.length > 1000){
+                  this.pickHistoryList.pop();
+                }  
+              }
+              this.pickHistoryList.unshift(messageContent.data[i]);
+            }
+            localStorage.setItem("pickHistory",JSON.stringify(this.pickHistoryList));
             break;
           case messageUtils.messageType.VOLUMN:
             //console.log(messageContent.data);
@@ -1884,6 +1959,9 @@ export default {
             break;
         }
       }
+    },
+    containsArray:function(array, item) {
+      return array.findIndex(obj => obj.id === item.id);
     },
     updateChatMessage: function(value) {
       this.$store.commit("setChatMessage", value);
@@ -2402,7 +2480,6 @@ export default {
     },
     containCollect(id){
       let result = this.favoriteMap[id] != null;
-      console.log("aaa",result);
       return result;
     },
      closeBottomSheet () {
@@ -2411,11 +2488,33 @@ export default {
     openBotttomSheet () {
       this.open = true;
     },
+    openBotttomPickHistorySheet () {
+      this.openPickHistory = true;
+    },
+    closeBottomPickHistorySheet () {
+      this.openPickHistory = false;
+    },
     removeAllCollect(){
       localStorage.removeItem("collectMusic");
       this.favoriteMap = {};
       this.open = false;
     },
+    removeAllPickHistory(){
+      localStorage.removeItem("pickHistory");
+      this.pickHistoryList=[];
+      this.openPickHistory= false;
+    },
+    seeMyselfPickHistory() {
+      if(!this.$store.getters.getSocketUserName){
+        this.$toast.message('请先设置昵称，可查看右下角教程');
+      }
+      this.pickSearch = this.$store.getters.getSocketUserName;
+    },
+    seeAllPickHistory() {
+      // 看所有历史记录
+      this.pickSearch = null;
+    },
+   
     exportCollect(){
       const dataStr = JSON.stringify(this.favoriteMap, null, 2);
       const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
@@ -2676,7 +2775,11 @@ export default {
     let collect =localStorage.getItem("collectMusic");
     if(collect && collect != undefined){
       this.favoriteMap = JSON.parse(collect);
-      console.log("收",this.favoriteMap);
+      // console.log("收",this.favoriteMap);
+    }
+    let pickHistory =localStorage.getItem("pickHistory");
+    if(pickHistory && pickHistory != undefined){
+      this.pickHistoryList = JSON.parse(pickHistory);
     }
         // localStorage.removeItem("collectMusic");
   },

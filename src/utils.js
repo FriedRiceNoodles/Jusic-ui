@@ -250,6 +250,5 @@ musicUtils.parseLyric = function (text) {
             result.splice(i, 1);
         }
     }
-    console.log(result);
     return result;
 };
