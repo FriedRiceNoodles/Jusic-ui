@@ -999,6 +999,7 @@ import Lyrics from "../components/Lyrics";
 
 import wx from 'weixin-js-sdk';
 import QrcodeVue from "qrcode.vue";
+import { balloons } from "balloons-js";
 export default {
   name: "Music",
   components: {
@@ -2732,7 +2733,7 @@ export default {
     }
   },
   mounted() {
-    
+    setTimeout(balloons(),2000);
     this.getScreenWidth();
      this.$nextTick(function () {
       this.$http.defaults.baseURL = baseUrl;
