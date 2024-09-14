@@ -81,6 +81,10 @@
                <div style="margin-bottom:10px;height:250px" v-if="openLyrics">
                     <Lyrics :lyrics="lyrics" :currentTime="currentTime"/>
             </div>
+            <div>
+                            <VEmojiPicker @select="onSelectEmoji" :dark="true" style="width:100%;height:100px;"/>
+
+            </div>
                 <mu-data-table
                 style="background-color: transparent;max-height:380px;overflow:auto;"
                 :selectable="false"
@@ -194,6 +198,7 @@
                 "
               >
                 <mu-text-field
+                  id="chatInput"
                   :value="chatMessage"
                   @input="updateChatMessage"
                   @keydown="messageFieldEnterHandler"
@@ -222,12 +227,13 @@
                   v-if="isContented"
                   @click="sendHandler"
                   color="primary"
-                  style="width: 90%"
+                  style="width: 80%"
                 >发送消息</mu-button>
+                 <mu-button icon @click="openBotttomSheet" style="font-size:20px">😃  
+              </mu-button>
                 <mu-button icon @click="openBotttomSheet" >
                     <mu-icon value="favorite" color="red"></mu-icon>
                 </mu-button>
-                
                 </mu-flex>
               
                   <div style="padding-top: 10px;">
@@ -1214,6 +1220,18 @@ export default {
       pickSearch:null
    } ),
   methods: {
+    onSelectEmoji(emoji){
+             let input = document.getElementById("chatInput");
+        let startPos = input.selectionStart;
+        let endPos = input.selectionEnd;
+        let resultText = input.value.substring(0, startPos) + emoji.data + input.value.substring(endPos);
+        input.value = resultText;
+        input.focus()
+        input.selectionStart = startPos + emoji.data.length
+        input.selectionEnd = startPos + emoji.data.length
+        this.$store.commit("setChatMessage", resultText);
+
+    },
     formatDate(value) {
       if (value) {
         return new Date(value).toLocaleDateString('zh-CN', {

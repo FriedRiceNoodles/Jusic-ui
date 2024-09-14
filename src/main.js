@@ -14,6 +14,7 @@ import Loading from 'muse-ui-loading';
 import Message from 'muse-ui-message';
 
 import axios from 'axios';
+import VEmojiPicker from  'v-emoji-picker'
 
 // 给Vue实例添加一个是个属性，这样在每个实例中就可以使用this.$http来访问axios实例了
 Vue.prototype.$http = axios
@@ -53,7 +54,7 @@ theme.use('custom-theme');
 Vue.use(MuseUI);
 Vue.use(Loading);
 Vue.use(Message);
-
+Vue.use(VEmojiPicker);
 Vue.use(Toast, {
   position: 'top',               // 弹出的位置
   time: 2000,                       // 显示的时长
