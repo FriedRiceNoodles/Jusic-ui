@@ -81,10 +81,7 @@
                <div style="margin-bottom:10px;height:250px" v-if="openLyrics">
                     <Lyrics :lyrics="lyrics" :currentTime="currentTime"/>
             </div>
-            <div>
-                            <VEmojiPicker @select="onSelectEmoji" :dark="true" style="width:100%;height:100px;"/>
-
-            </div>
+           
                 <mu-data-table
                 style="background-color: transparent;max-height:380px;overflow:auto;"
                 :selectable="false"
@@ -221,7 +218,7 @@
                   v-if="!isContented"
                   @click="connect"
                   color="primary"
-                  style="width: 90%"
+                  style="width: 80%"
                 >连接服务器</mu-button>
                 <mu-button
                   v-if="isContented"
@@ -229,13 +226,18 @@
                   color="primary"
                   style="width: 80%"
                 >发送消息</mu-button>
-                 <mu-button icon @click="openBotttomSheet" style="font-size:20px">😃  
+                 <mu-button ref="emojiBtn" icon @click="emojiPickerVisible = !emojiPickerVisible" style="font-size:20px">😃  
               </mu-button>
                 <mu-button icon @click="openBotttomSheet" >
                     <mu-icon value="favorite" color="red"></mu-icon>
                 </mu-button>
+                <!-- 悬浮按钮，鼠标悬浮时显示 emoji picker -->
+                <mu-popover cover :trigger="trigger" placement="bottom" :open.sync="emojiPickerVisible">
+                <!-- Popover 内容 -->
+                  <v-emoji-picker @select="onSelectEmoji" :showSearch="false" :showCategories="true" :dark="true" style="width: 100%; height: 200px;" />
+                </mu-popover>
                 </mu-flex>
-              
+      
                   <div style="padding-top: 10px;">
                
                   <mu-chip style="margin-right:10px;"
@@ -1100,6 +1102,8 @@ export default {
     }
   },
   data: () => ({
+          trigger: null,
+          emojiPickerVisible: false, // 控制表情选择器的显示状态
     isPlay: false,
     columns: [
       { title: "ID", name: "id", width: 88, align: "left" },
@@ -1263,6 +1267,8 @@ export default {
       stompClient.connect(
         {},
         frame => {
+                this.trigger = this.$refs.emojiBtn.$el;
+
           // console.log('连接到服务器成功！', frame);
           this.$store.commit("setSocketIsConnected", true);
           // pre onmessage
@@ -2751,9 +2757,11 @@ export default {
     }
   },
   mounted() {
-    setTimeout(balloons(),2000);
     this.getScreenWidth();
+    setTimeout(balloons,2000);
+
      this.$nextTick(function () {
+
       this.$http.defaults.baseURL = baseUrl;
       this.getHomeHouses();
       try{
