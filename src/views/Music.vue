@@ -233,7 +233,6 @@
                 </mu-button>
                 <!-- 悬浮按钮，鼠标悬浮时显示 emoji picker -->
                 <mu-popover cover :trigger="trigger" placement="bottom" :open.sync="emojiPickerVisible">
-                <!-- Popover 内容 -->
                   <v-emoji-picker @select="onSelectEmoji" :showSearch="false" :showCategories="true" :dark="true" style="width: 100%; height: 200px;" />
                 </mu-popover>
                 </mu-flex>
@@ -1810,18 +1809,18 @@ export default {
                 this.$store.commit("setMusic2", { url: this.secondUrl });
               }
             }
-            for(var i = 0; i < messageContent.data.length; i++){
-              let itemIndex = this.containsArray(this.pickHistoryList,messageContent.data[i]);
-              if(itemIndex != -1){
-                this.pickHistoryList.splice(itemIndex,1);
-              }else{
-                if(this.pickHistoryList.length > 1000){
-                  this.pickHistoryList.pop();
-                }  
-              }
-              this.pickHistoryList.unshift(messageContent.data[i]);
-            }
-            localStorage.setItem("pickHistory",JSON.stringify(this.pickHistoryList));
+            // for(var i = 0; i < messageContent.data.length; i++){
+            //   let itemIndex = this.containsArray(this.pickHistoryList,messageContent.data[i]);
+            //   if(itemIndex != -1){
+            //     this.pickHistoryList.splice(itemIndex,1);
+            //   }else{
+            //     if(this.pickHistoryList.length > 499){
+            //       this.pickHistoryList.pop();
+            //     }  
+            //   }
+            //   this.pickHistoryList.unshift(messageContent.data[i]);
+            // }
+            // localStorage.setItem("pickHistory",JSON.stringify(this.pickHistoryList));
             break;
           case messageUtils.messageType.VOLUMN:
             //console.log(messageContent.data);
@@ -1871,6 +1870,17 @@ export default {
               );
             }
             document.title = messageContent.data.name;
+
+              let itemIndex = this.containsArray(this.pickHistoryList,messageContent.data);
+              if(itemIndex != -1){
+                this.pickHistoryList.splice(itemIndex,1);
+              }else{
+                if(this.pickHistoryList.length > 399){
+                  this.pickHistoryList.pop();
+                }  
+              }
+              this.pickHistoryList.unshift(messageContent.data);
+            localStorage.setItem("pickHistory",JSON.stringify(this.pickHistoryList));
             break;
           case messageUtils.messageType.AUTH_ROOT:
             this.$store.commit("pushChatData", {
@@ -2804,10 +2814,10 @@ export default {
       this.favoriteMap = JSON.parse(collect);
       // console.log("收",this.favoriteMap);
     }
-    let pickHistory =localStorage.getItem("pickHistory");
-    if(pickHistory && pickHistory != undefined){
-      this.pickHistoryList = JSON.parse(pickHistory);
-    }
+    // let pickHistory =localStorage.getItem("pickHistory");
+    // if(pickHistory && pickHistory != undefined){
+    //   this.pickHistoryList = JSON.parse(pickHistory);
+    // }
         // localStorage.removeItem("collectMusic");
   },
   created() {
